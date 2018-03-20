@@ -1,5 +1,7 @@
 package semestr6.ksr.controller;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import semestr6.ksr.dom.Artykul;
 import semestr6.ksr.repository.ArtykulRepository;
 
@@ -32,7 +34,7 @@ public class Parser {
             next = checkPlaces(next);
             next = checkBody(next);
 
-            System.out.print(artykul.getBody().toString());
+            //System.out.print(artykul.getBody().toString());
         }
     }//dokonczyc sapisywanie do obiektu  pola taopic i places problem jest z jednym dlugim strinfgiem z ktorego nie mozemy wywniskowac konca
 
@@ -42,14 +44,17 @@ public class Parser {
         if (next.contains("</BODY>")) {
 
             artykulRepository.addArtykul(artykul);
-            System.out.println(artykul.getBody().toString());
+            //System.out.println(artykul.getBody().toString());
             artykul = new Artykul();
             System.out.println("-------------------------------------------");
             areaFlag = "";
         }else if (areaFlag.equals("b")) {
-            artykul.addWordToBody(next.toLowerCase());
-            artykulRepository.addUniqeWord(next.toLowerCase());
-            areaFlag = "b";
+            System.out.println(next);
+            next=filterTheWord(next.toLowerCase());
+            if(!next.equals("")) {
+                artykul.addWordToBody(next);
+                artykulRepository.addUniqeWord(next);
+            }
         }else if (next.contains("<BODY>")) {
             next = next.split("<BODY>")[1].toLowerCase();
             artykul.addWordToBody(next );
@@ -80,7 +85,29 @@ public class Parser {
             }
 
         }
+
     return next;
+    }
+    private String filterTheWord (String next){
+
+        if(next.matches(".*\\d+.*")){
+            System.out.println("----------------Is a NUmber!!!!-----------------");
+            return "";
+        }else if (next.equals("...")){
+            return "";
+        }else if (next.equals(".")){
+            return "";
+        }else if (next.equals(",")){
+            return  "";
+        }
+        else if(next.contains(".")){
+            System.out.println(next);
+            return next.split("\\.")[0];
+        }else if(next.contains(",")){
+            return  next.split(",")[0];
+        }
+
+        return next;
     }
 
 }

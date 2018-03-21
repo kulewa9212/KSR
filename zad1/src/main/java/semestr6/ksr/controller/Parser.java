@@ -1,32 +1,34 @@
 package semestr6.ksr.controller;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
 import semestr6.ksr.dom.Artykul;
 import semestr6.ksr.repository.ArtykulRepository;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Parser {
 
     public ArtykulRepository artykulRepository;
-    private File file;
+    private File reutFile;
     private String areaFlag;
     private Artykul artykul;
     private String next;
+    private List<String> ignoredWordsList;
 
-    public Parser(ArtykulRepository artykulRepository, File file) {
+    public Parser(ArtykulRepository artykulRepository, File reutFile,File ignoredWordsFile) throws FileNotFoundException {
         this.artykulRepository = artykulRepository;
-        this.file = file;
+        this.reutFile = reutFile;
         this.areaFlag = new String();
         this.artykul = new Artykul();
         this.next = new String();
+        this.ignoredWordsList = prepareIgnoredWordsList(ignoredWordsFile);
     }
 
     public void parse() throws FileNotFoundException {
-        Scanner scanner = new Scanner(file);
+        Scanner scanner = new Scanner(reutFile);
 
         while (scanner.hasNext()) {
             next = scanner.next();
@@ -36,7 +38,16 @@ public class Parser {
 
             //System.out.print(artykul.getBody().toString());
         }
-    }//dokonczyc sapisywanie do obiektu  pola taopic i places problem jest z jednym dlugim strinfgiem z ktorego nie mozemy wywniskowac konca
+    }
+
+    private List<String> prepareIgnoredWordsList(File ignoredWordFile) throws FileNotFoundException {
+        List<String> newIgnoredWordsList=new ArrayList<String>();
+        Scanner scanner = new Scanner(ignoredWordFile);
+        while (scanner.hasNext()){
+            newIgnoredWordsList.add( scanner.next());
+        }
+        return newIgnoredWordsList;
+    }
 
     private String checkBody(String next) {
 
@@ -90,6 +101,11 @@ public class Parser {
     }
     private String filterTheWord (String next){
 
+        for(String ignoredWord : ignoredWordsList){
+            if (next.equalsIgnoreCase(ignoredWord)){
+                return "";
+            }
+        }
         if(next.matches(".*\\d+.*")){
             System.out.println("----------------Is a NUmber!!!!-----------------");
             return "";

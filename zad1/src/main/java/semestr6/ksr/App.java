@@ -26,12 +26,13 @@ public class App
     {
 
         ArtykulRepository artykulRepository = new ArtykulRepository();
-        String path = new File(".").getCanonicalPath();
-        File file = new File(path + "/src/main/java/semestr6/ksr/reut2-000.sgm");
+        String path = new File(".").getCanonicalPath()+"/src/main/java/semestr6/ksr/files/";
+        File reutFile = new File(path + "reut2-000.sgm");
+        File ignoredWordsFile = new File(path + "ignoredWordsList");
 
         System.out.println( "Hello World! xxxxxx" );
 
-        Parser parser = new Parser(artykulRepository,file);
+        Parser parser = new Parser(artykulRepository,reutFile,ignoredWordsFile);
         parser.parse();
         System.out.println(parser.artykulRepository.getUniqueWords());
         System.out.println(parser.artykulRepository.getArtykulList().get(0).getBody().toString());

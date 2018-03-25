@@ -29,13 +29,18 @@ public class App
         String path = new File(".").getCanonicalPath()+"/src/main/java/semestr6/ksr/files/";
         File reutFile = new File(path + "reut2-000.sgm");
         File ignoredWordsFile = new File(path + "ignoredWordsList");
+        File nounsFile = new File(path + "nouns.txt");
+        File simpleNounsFile =  new File (path + "simpleNouns.txt");
+        File adverbsFile = new File (path +"adverbs.txt");
+
 
         System.out.println( "Hello World! xxxxxx" );
 
-        Parser parser = new Parser(artykulRepository,reutFile,ignoredWordsFile);
+        Parser parser = new Parser(artykulRepository,reutFile,ignoredWordsFile,nounsFile,simpleNounsFile,adverbsFile);
         parser.parse();
         System.out.println(parser.artykulRepository.getUniqueWords());
-        System.out.println(parser.artykulRepository.getArtykulList().get(0).getBody().toString());
+        System.out.println(parser.artykulRepository.getArtykulList().get(4).getBodyMother().toString());
+        System.out.println(parser.artykulRepository.getUniqueWords().size());
     }
 
 }

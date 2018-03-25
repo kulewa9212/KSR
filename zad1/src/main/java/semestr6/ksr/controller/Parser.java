@@ -17,14 +17,22 @@ public class Parser {
     private Artykul artykul;
     private String next;
     private List<String> ignoredWordsList;
+    private List<String> nounsList;
+    private List<String> simpleNounList;
+    private List<String> adverbsList;
 
-    public Parser(ArtykulRepository artykulRepository, File reutFile,File ignoredWordsFile) throws FileNotFoundException {
+    public Parser(ArtykulRepository artykulRepository, File reutFile,File ignoredWordsFile,File nounsFile,
+                  File simpleNounsFile, File adverbsFile) throws FileNotFoundException {
         this.artykulRepository = artykulRepository;
         this.reutFile = reutFile;
         this.areaFlag = new String();
         this.artykul = new Artykul();
         this.next = new String();
         this.ignoredWordsList = prepareIgnoredWordsList(ignoredWordsFile);
+        this.nounsList = prepareIgnoredWordsList(nounsFile);
+        this.simpleNounList = prepareIgnoredWordsList(simpleNounsFile);
+        this.adverbsList = prepareIgnoredWordsList(adverbsFile);
+
     }
 
     public void parse() throws FileNotFoundException {
@@ -34,10 +42,15 @@ public class Parser {
             next = scanner.next();
             next = checkTopics(next);
             next = checkPlaces(next);
+
+
             next = checkBody(next);
 
             //System.out.print(artykul.getBody().toString());
+
+
         }
+        addRestWords();
     }
 
     private List<String> prepareIgnoredWordsList(File ignoredWordFile) throws FileNotFoundException {
@@ -57,19 +70,26 @@ public class Parser {
             artykulRepository.addArtykul(artykul);
             //System.out.println(artykul.getBody().toString());
             artykul = new Artykul();
-            System.out.println("-------------------------------------------");
+            for (String uniqeWord : artykulRepository.getUniqueWords())
+            {
+                artykul.addWordToBody(uniqeWord,true);
+            }
+            //System.out.println("-------------------------------------------");
             areaFlag = "";
         }else if (areaFlag.equals("b")) {
-            System.out.println(next);
+            //System.out.println(next);
             next=filterTheWord(next.toLowerCase());
             if(!next.equals("")) {
-                artykul.addWordToBody(next);
+                artykul.addWordToBody(next,false);
                 artykulRepository.addUniqeWord(next);
             }
         }else if (next.contains("<BODY>")) {
             next = next.split("<BODY>")[1].toLowerCase();
-            artykul.addWordToBody(next );
-            artykulRepository.addUniqeWord(next);
+            next=filterTheWord(next.toLowerCase());
+            if(!next.equals("")) {
+                artykul.addWordToBody(next,false);
+                artykulRepository.addUniqeWord(next);
+            }
             areaFlag = "b";}
         return next;
     }
@@ -99,31 +119,71 @@ public class Parser {
 
     return next;
     }
-    private String filterTheWord (String next){
+    private String filterTheWord (String next) {
 
-        for(String ignoredWord : ignoredWordsList){
-            if (next.equalsIgnoreCase(ignoredWord)){
+        if (next.matches(".*\\d+.*")) {
+            //System.out.println("----------------Is a NUmber!!!!-----------------");
+            return "";
+        } else if (next.equals("...")) {
+            return "";
+        } else if (next.equals(".")) {
+            return "";
+        } else if (next.equals(",")) {
+            return "";
+        }
+        if (next.contains(",")) {
+            if (next.split(",").length < 2) {
+                next = next.split(",")[0];
+            }
+        }
+        if (next.contains(".")) {
+            if (next.split("\\.").length < 2) {
+                next = next.split("\\.")[0];
+            }
+        }
+        if (next.contains("'s")) {
+            next = next.split("'s")[0];
+
+        }
+
+        for (String noun : ignoredWordsList) {
+            if (next.equals(noun.toLowerCase())) {
                 return "";
             }
         }
-        if(next.matches(".*\\d+.*")){
-            System.out.println("----------------Is a NUmber!!!!-----------------");
-            return "";
-        }else if (next.equals("...")){
-            return "";
-        }else if (next.equals(".")){
-            return "";
-        }else if (next.equals(",")){
-            return  "";
-        }
-        else if(next.contains(".")){
-            System.out.println(next);
-            return next.split("\\.")[0];
-        }else if(next.contains(",")){
-            return  next.split(",")[0];
+
+        for (String noun : artykulRepository.getUniqueWords()) {
+            if (next.equals(noun.toLowerCase())) {
+                return next;
+            }
         }
 
-        return next;
+        for (String noun : simpleNounList) {
+            if (next.equals(noun.toLowerCase())) {
+                return next;
+            }
+        }
+        for (String adverb : adverbsList) {
+            if (next.equals(adverb.toLowerCase())) {
+                return "";
+            }
+        }
+        for (String noun : nounsList) {
+            if (next.equals(noun.toLowerCase())) {
+                return next;
+            }
+        }
+        return "";
+    }
+    void addRestWords(){
+        for(Artykul artykul1:artykulRepository.getArtykulList()){
+            for (String word:artykulRepository.getUniqueWords()){
+                artykul1.addWordToBody(word,true);
+            }
+            artykul1.convertBodyToMother();
+        }
+
+
     }
 
 }

@@ -12,11 +12,14 @@ public class ArtykulRepository {
     private Set<String> uniqePlaces;
     private Set<String> uniqeTopics;
     private Set<String> uniqueWords;
+    private List<String> ignoredWords;
     public ArtykulRepository(){
         this.artykulList=new ArrayList<Artykul>();
         this.uniqePlaces=new LinkedHashSet<String>();
         this.uniqeTopics = new LinkedHashSet<String>();
         this.uniqueWords=new LinkedHashSet<String>();
+        this.ignoredWords = new ArrayList<String>();
+
         }
         public void addArtykul(Artykul artykul){
         artykulList.add(artykul);

@@ -1,13 +1,15 @@
 package semestr6.ksr.dom;
 
+import jdk.internal.org.objectweb.asm.tree.InnerClassNode;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Artykul {
-    private String place;
-    private String topic;
+    private Integer place;
+    private Integer topic;
     private Map<String , Integer> body ;
 
 
@@ -15,24 +17,20 @@ public class Artykul {
     private List<Integer> bodyMother ;
 
     public Artykul(){
-        this.place= "";
-        this.topic= "";
+
         this.body = new LinkedHashMap<String, Integer>();
     }
     public Artykul(String place, String topic){
-        this.place = place;
-        this.topic = topic;
+
         this.body = new LinkedHashMap<String, Integer>();
     }
 
-    public String getPlace() {
+    public Integer getPlace() {
         return place;
     }
 
 
-    public String getTopic() {
-        return topic;
-    }
+    public Integer getTopic() { return topic; }
 
     public Map<String, Integer> getBody() {
         return body;
@@ -53,11 +51,11 @@ public class Artykul {
         }
     }
 
-    public void setPlace(String place) {
+    public void setPlace(Integer place) {
         this.place = place;
     }
 
-    public void setTopic(String topic) {
+    public void setTopic(Integer topic) {
         this.topic = topic;
     }
     public void convertBodyToMother(){

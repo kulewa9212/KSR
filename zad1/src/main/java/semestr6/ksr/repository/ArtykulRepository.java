@@ -2,23 +2,19 @@ package semestr6.ksr.repository;
 
 import semestr6.ksr.dom.Artykul;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class ArtykulRepository {
     private List<Artykul> artykulList;
     private Set<String> uniqePlaces;
-    private Set<String> uniqeTopics;
+    private Map<String,Integer> uniqeTopics;
     private Set<String> uniqueWords;
-    private List<String> ignoredWords;
+
     public ArtykulRepository(){
         this.artykulList=new ArrayList<Artykul>();
         this.uniqePlaces=new LinkedHashSet<String>();
-        this.uniqeTopics = new LinkedHashSet<String>();
+        this.uniqeTopics = new LinkedHashMap<String, Integer>();
         this.uniqueWords=new LinkedHashSet<String>();
-        this.ignoredWords = new ArrayList<String>();
 
         }
         public void addArtykul(Artykul artykul){
@@ -35,4 +31,22 @@ public class ArtykulRepository {
     public List<Artykul> getArtykulList() {
         return artykulList;
     }
+
+    public void setUniqePlaces(Set<String> uniqePlaces) {
+        this.uniqePlaces = uniqePlaces;
+    }
+
+    public Map<String, Integer> getUniqeTopics() {
+        return uniqeTopics;
+    }
+
+    public void setUniqeTopics(Map<String, Integer> uniqeTopics) {
+        this.uniqeTopics = uniqeTopics;
+    }
+
+    public Set<String> getUniqePlaces() {
+        return uniqePlaces;
+    }
+
+
 }

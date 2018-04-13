@@ -1,13 +1,21 @@
 package semestr6.ksr.controller;
 
+
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.core.StopFilter;
+import org.apache.lucene.analysis.en.EnglishAnalyzer;
+import org.apache.lucene.analysis.en.PorterStemFilter;
+import org.apache.lucene.analysis.standard.StandardTokenizer;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.util.Version;
 import semestr6.ksr.dom.Artykul;
 import semestr6.ksr.repository.ArtykulRepository;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.*;
 
 public class Parser {
 
@@ -20,9 +28,11 @@ public class Parser {
     private List<String> nounsList;
     private List<String> simpleNounList;
     private List<String> adverbsList;
+    private Map<String,Integer> uniqeTopics;
+    private Map<String,Integer> uniquePlaces;
 
     public Parser(ArtykulRepository artykulRepository, File reutFile,File ignoredWordsFile,File nounsFile,
-                  File simpleNounsFile, File adverbsFile) throws FileNotFoundException {
+                  File simpleNounsFile, File adverbsFile, File topicsFile) throws FileNotFoundException {
         this.artykulRepository = artykulRepository;
         this.reutFile = reutFile;
         this.areaFlag = new String();
@@ -32,6 +42,7 @@ public class Parser {
         this.nounsList = prepareIgnoredWordsList(nounsFile);
         this.simpleNounList = prepareIgnoredWordsList(simpleNounsFile);
         this.adverbsList = prepareIgnoredWordsList(adverbsFile);
+        this.uniqeTopics = filluniqe(topicsFile);
 
     }
 
@@ -42,16 +53,11 @@ public class Parser {
             next = scanner.next();
             next = checkTopics(next);
             next = checkPlaces(next);
-
-
             next = checkBody(next);
-
             //System.out.print(artykul.getBody().toString());
-
-
         }
-        addRestWords();
-    }
+//        addRestWords();
+    }z
 
     private List<String> prepareIgnoredWordsList(File ignoredWordFile) throws FileNotFoundException {
         List<String> newIgnoredWordsList=new ArrayList<String>();
@@ -78,15 +84,62 @@ public class Parser {
             areaFlag = "";
         }else if (areaFlag.equals("b")) {
             //System.out.println(next);
-            next=filterTheWord(next.toLowerCase());
+            if(!next.equals("")) {
+                {
+                    TokenStream tokenStream = new StandardTokenizer(
+                            Version.LUCENE_40, new StringReader(next));
+                    tokenStream = new StopFilter(Version.LUCENE_40, tokenStream, EnglishAnalyzer.getDefaultStopSet());
+                    tokenStream = new PorterStemFilter(tokenStream);
+
+                    StringBuilder sb = new StringBuilder();
+                    CharTermAttribute charTermAttr = tokenStream.getAttribute(CharTermAttribute.class);
+                    try{
+                        while (tokenStream.incrementToken()) {
+                            if (sb.length() > 0) {
+                                sb.append(" ");
+                            }
+                            sb.append(charTermAttr.toString());
+                        }
+                    }
+
+                    catch (IOException e){
+                        System.out.println(e.getMessage());
+                    }
+                    //System.out.println(sb.toString());
+                }
+
+            }
             if(!next.equals("")) {
                 artykul.addWordToBody(next,false);
                 artykulRepository.addUniqeWord(next);
             }
         }else if (next.contains("<BODY>")) {
             next = next.split("<BODY>")[1].toLowerCase();
-            next=filterTheWord(next.toLowerCase());
+//            next=filterTheWord(next.toLowerCase());
             if(!next.equals("")) {
+                {
+                    TokenStream tokenStream = new StandardTokenizer(
+                            Version.LUCENE_40, new StringReader(next));
+                    tokenStream = new StopFilter(Version.LUCENE_40, tokenStream, EnglishAnalyzer.getDefaultStopSet());
+                    tokenStream = new PorterStemFilter(tokenStream);
+
+                    StringBuilder sb = new StringBuilder();
+                    CharTermAttribute charTermAttr = tokenStream.getAttribute(CharTermAttribute.class);
+                    try{
+                        while (tokenStream.incrementToken()) {
+                            if (sb.length() > 0) {
+                                sb.append(" ");
+                            }
+                            sb.append(charTermAttr.toString());
+                        }
+                    }
+
+                    catch (IOException e){
+                        System.out.println(e.getMessage());
+                    }
+                    System.out.println(sb.toString());
+                }
+
                 artykul.addWordToBody(next,false);
                 artykulRepository.addUniqeWord(next);
             }
@@ -98,7 +151,7 @@ public class Parser {
         if (next.contains("<PLACES>")&& next.contains("<D>")) {
             if (next.split("<D>").length<3){
                 next = next.split("<D>")[1].split("</D>")[0];
-                artykul.setPlace(next);
+                artykul.setPlace(uniqeTopics.get(next));
                 System.out.println("Place: "+next);
             }
         }
@@ -111,7 +164,7 @@ public class Parser {
         if (next.contains("<TOPICS>")&& next.contains(("<D>"))) {
             if (next.split("<D>").length<3){
                 next = next.split("<D>")[1].split("</D>")[0];
-                artykul.setTopic(next);
+                artykul.setTopic(uniqeTopics.get(next));
                 System.out.println("Topic: " + next);
             }
 
@@ -175,15 +228,30 @@ public class Parser {
         }
         return "";
     }
-    void addRestWords(){
-        for(Artykul artykul1:artykulRepository.getArtykulList()){
-            for (String word:artykulRepository.getUniqueWords()){
-                artykul1.addWordToBody(word,true);
+//    void addRestWords(){
+//        for(Artykul artykul1:artykulRepository.getArtykulList()){
+//            for (String word:artykulRepository.getUniqueWords()){
+//                artykul1.addWordToBody(word,true);
+//            }
+//            artykul1.convertBodyToMother();
+//        }
+//
+//
+//    }
+
+    Map<String,Integer> filluniqe(File  uniqe) throws FileNotFoundException {
+        Map<String,Integer> uniqeMap = new LinkedHashMap<String, Integer>();
+        Scanner scanner = new Scanner(uniqe);
+        int i =0;
+        while (scanner.hasNext()){
+            String next = scanner.next();
+            if(uniqeMap.get(next)==null)
+            {
+                uniqeMap.put(next,i);
+                i++;
             }
-            artykul1.convertBodyToMother();
         }
-
-
+        return  uniqeMap;
     }
 
 }

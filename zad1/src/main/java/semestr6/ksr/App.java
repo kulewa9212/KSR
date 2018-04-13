@@ -32,15 +32,18 @@ public class App
         File nounsFile = new File(path + "nouns.txt");
         File simpleNounsFile =  new File (path + "simpleNouns.txt");
         File adverbsFile = new File (path +"adverbs.txt");
+        File topicsFile = new File ( path + "all-topics-strings.lc.txt");
+
 
 
         System.out.println( "Hello World! xxxxxx" );
 
-        Parser parser = new Parser(artykulRepository,reutFile,ignoredWordsFile,nounsFile,simpleNounsFile,adverbsFile);
+        Parser parser = new Parser(artykulRepository,reutFile,ignoredWordsFile,nounsFile,simpleNounsFile,adverbsFile,topicsFile);
         parser.parse();
         System.out.println(parser.artykulRepository.getUniqueWords());
         System.out.println(parser.artykulRepository.getArtykulList().get(4).getBodyMother().toString());
         System.out.println(parser.artykulRepository.getUniqueWords().size());
+
     }
 
 }

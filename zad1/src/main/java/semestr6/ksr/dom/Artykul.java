@@ -10,19 +10,17 @@ import java.util.Map;
 public class Artykul {
     private Integer place;
     private Integer topic;
-    private Map<String , Integer> body ;
-
-
-
-    private List<Integer> bodyMother ;
+    private String bodyString;
+    private Map<String , Integer> bodyMap ;
+    private List<Integer> bodyVector ;
 
     public Artykul(){
 
-        this.body = new LinkedHashMap<String, Integer>();
+        this.bodyMap = new LinkedHashMap<String, Integer>();
     }
     public Artykul(String place, String topic){
 
-        this.body = new LinkedHashMap<String, Integer>();
+        this.bodyMap = new LinkedHashMap<String, Integer>();
     }
 
     public Integer getPlace() {
@@ -33,21 +31,21 @@ public class Artykul {
     public Integer getTopic() { return topic; }
 
     public Map<String, Integer> getBody() {
-        return body;
+        return bodyMap;
     }
 
-    public List<Integer> getBodyMother() {
-        return bodyMother;
+    public List<Integer> getBodyVector() {
+        return bodyVector;
     }
 
-    public void addWordToBody(String word,Boolean zero){
-        if (body.get(word)!=null&& zero==false){
-            body.put(word,body.get(word)+1);
-        }else if(body.get(word)==null&&zero==true){
-            body.put(word, 0);
+    public void addWordToBodyMap(String word,Boolean zero){
+        if (bodyMap.get(word)!=null&& zero==false){
+            bodyMap.put(word,bodyMap.get(word)+1);
+        }else if(bodyMap.get(word)==null&&zero==true){
+            bodyMap.put(word, 0);
         }
         else if (zero==false) {
-            body.put(word, 1);
+            bodyMap.put(word, 1);
         }
     }
 
@@ -58,12 +56,24 @@ public class Artykul {
     public void setTopic(Integer topic) {
         this.topic = topic;
     }
-    public void convertBodyToMother(){
-        bodyMother = new ArrayList<Integer>();
+    public void convertBodyToVector(){
+        bodyVector = new ArrayList<Integer>();
 
-        for (Integer number : body.values()){
-            bodyMother.add(number);
+        for (Integer number : bodyMap.values()){
+            bodyVector.add(number);
         }
+    }
+
+    public String getBodyString() {
+        return bodyString;
+    }
+
+    public void setBodyString(String bodyString) {
+        this.bodyString = bodyString;
+    }
+
+    public  void addWordToBodyString(String next){
+        bodyString = bodyString + " " + next;
     }
 
 }

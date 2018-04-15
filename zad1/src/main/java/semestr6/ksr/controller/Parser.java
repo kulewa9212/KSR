@@ -30,6 +30,7 @@ public class Parser {
     private List<String> adverbsList;
     private Map<String,Integer> uniqeTopics;
     private Map<String,Integer> uniquePlaces;
+    private Extractor extractor;
 
     public Parser(ArtykulRepository artykulRepository, File reutFile,File ignoredWordsFile,File nounsFile,
                   File simpleNounsFile, File adverbsFile, File topicsFile) throws FileNotFoundException {
@@ -43,12 +44,13 @@ public class Parser {
         this.simpleNounList = prepareIgnoredWordsList(simpleNounsFile);
         this.adverbsList = prepareIgnoredWordsList(adverbsFile);
         this.uniqeTopics = filluniqe(topicsFile);
+        this.extractor =  new Extractor();
 
     }
 
-    public void parse() throws FileNotFoundException {
+    public void parse() throws IOException {
         Scanner scanner = new Scanner(reutFile);
-
+        //extractor.prepareCoreWords();
         while (scanner.hasNext()) {
             next = scanner.next();
             next = checkTopics(next);
@@ -57,7 +59,7 @@ public class Parser {
             //System.out.print(artykul.getBody().toString());
         }
 //        addRestWords();
-    }z
+    }
 
     private List<String> prepareIgnoredWordsList(File ignoredWordFile) throws FileNotFoundException {
         List<String> newIgnoredWordsList=new ArrayList<String>();
@@ -68,80 +70,63 @@ public class Parser {
         return newIgnoredWordsList;
     }
 
-    private String checkBody(String next) {
+    private String checkBody(String next) throws IOException {
 
 
         if (next.contains("</BODY>")) {
 
-            artykulRepository.addArtykul(artykul);
-            //System.out.println(artykul.getBody().toString());
-            artykul = new Artykul();
-            for (String uniqeWord : artykulRepository.getUniqueWords())
-            {
-                artykul.addWordToBody(uniqeWord,true);
+
+
+
+            //extractor.sentenceDetect(artykul.getBodyString());}
+            String[] tokens = extractor.tokenizer(artykul.getBodyString().toLowerCase());
+            String[] tags = extractor.postTagger(tokens);
+            //String[] lemmas = extractor.lemmatizer(tokens,tags);
+
+            for (int i=0 ; i<tokens.length; i++){
+
+                if(tags[i].equals("CD")){
+                    artykul.addWordToBodyMap(tags[i],false);
+                }
+                else if(!tags[i].equals("IN") && !tokens[i].equals(",") && !tokens[i].equals(".") && !tags[i].equals("POS")
+                        && !tags[i].equals("DT")&& !tags.equals("-RRB-")&& !tags.equals("-LRB-") && !tags.equals("PRP$")
+                        && !tags.equals("RB") ){
+                    artykul.addWordToBodyMap(extractor.stemmWord(tokens[i]),false);
+                }
             }
+
+            System.out.println("----------------------------------------------------------------");
+            System.out.println(artykul.getBody());
+
+
+            artykulRepository.addArtykul(artykul);
+
+
+
+            artykul = new Artykul();
+
+
+//            for (String uniqeWord : artykulRepository.getUniqueWords())
+//            {
+//             //   artykul.addWordToBodyMap(uniqeWord,true);
+//            }
             //System.out.println("-------------------------------------------");
             areaFlag = "";
         }else if (areaFlag.equals("b")) {
+
             //System.out.println(next);
             if(!next.equals("")) {
-                {
-                    TokenStream tokenStream = new StandardTokenizer(
-                            Version.LUCENE_40, new StringReader(next));
-                    tokenStream = new StopFilter(Version.LUCENE_40, tokenStream, EnglishAnalyzer.getDefaultStopSet());
-                    tokenStream = new PorterStemFilter(tokenStream);
-
-                    StringBuilder sb = new StringBuilder();
-                    CharTermAttribute charTermAttr = tokenStream.getAttribute(CharTermAttribute.class);
-                    try{
-                        while (tokenStream.incrementToken()) {
-                            if (sb.length() > 0) {
-                                sb.append(" ");
-                            }
-                            sb.append(charTermAttr.toString());
-                        }
-                    }
-
-                    catch (IOException e){
-                        System.out.println(e.getMessage());
-                    }
-                    //System.out.println(sb.toString());
-                }
-
-            }
-            if(!next.equals("")) {
-                artykul.addWordToBody(next,false);
+                artykul.addWordToBodyString(next);
+                //artykul.addWordToBodyMap(next,false);
                 artykulRepository.addUniqeWord(next);
             }
         }else if (next.contains("<BODY>")) {
-            next = next.split("<BODY>")[1].toLowerCase();
+            next = next.split("<BODY>")[1];
+
 //            next=filterTheWord(next.toLowerCase());
             if(!next.equals("")) {
-                {
-                    TokenStream tokenStream = new StandardTokenizer(
-                            Version.LUCENE_40, new StringReader(next));
-                    tokenStream = new StopFilter(Version.LUCENE_40, tokenStream, EnglishAnalyzer.getDefaultStopSet());
-                    tokenStream = new PorterStemFilter(tokenStream);
-
-                    StringBuilder sb = new StringBuilder();
-                    CharTermAttribute charTermAttr = tokenStream.getAttribute(CharTermAttribute.class);
-                    try{
-                        while (tokenStream.incrementToken()) {
-                            if (sb.length() > 0) {
-                                sb.append(" ");
-                            }
-                            sb.append(charTermAttr.toString());
-                        }
-                    }
-
-                    catch (IOException e){
-                        System.out.println(e.getMessage());
-                    }
-                    System.out.println(sb.toString());
-                }
-
-                artykul.addWordToBody(next,false);
-                artykulRepository.addUniqeWord(next);
+                next = extractor.stemmWord(next);
+                artykul.setBodyString(next);
             }
             areaFlag = "b";}
         return next;
@@ -253,6 +238,8 @@ public class Parser {
         }
         return  uniqeMap;
     }
+
+
 
 }
 

@@ -41,7 +41,7 @@ public class App
         Parser parser = new Parser(artykulRepository,reutFile,ignoredWordsFile,nounsFile,simpleNounsFile,adverbsFile,topicsFile);
         parser.parse();
         System.out.println(parser.artykulRepository.getUniqueWords());
-        System.out.println(parser.artykulRepository.getArtykulList().get(4).getBodyMother().toString());
+        //lejakSystem.out.println(parser.artykulRepository.getArtykulList().get(4).getBodyMother().toString());
         System.out.println(parser.artykulRepository.getUniqueWords().size());
 
     }

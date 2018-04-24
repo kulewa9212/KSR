@@ -8,23 +8,29 @@ public class ArtykulRepository {
     private List<Artykul> artykulList;
     private Set<String> uniqePlaces;
     private Map<String,Integer> uniqeTopics;
-    private Set<String> uniqueWords;
+    private Map<String,Integer> uniqueWords;
 
     public ArtykulRepository(){
         this.artykulList=new ArrayList<Artykul>();
         this.uniqePlaces=new LinkedHashSet<String>();
         this.uniqeTopics = new LinkedHashMap<String, Integer>();
-        this.uniqueWords=new LinkedHashSet<String>();
+        this.uniqueWords=new HashMap<>();
 
         }
         public void addArtykul(Artykul artykul){
         artykulList.add(artykul);
         }
         public void addUniqeWord(String word){
-        uniqueWords.add(word);
+
+            if (uniqueWords.get(word)!=null){
+                uniqueWords.put(word,uniqueWords.get(word)+1);
+            }
+            else  {
+                uniqueWords.put(word, 1);
+            }
         }
 
-    public Set<String> getUniqueWords() {
+    public Map<String,Integer> getUniqueWords() {
         return uniqueWords;
     }
 

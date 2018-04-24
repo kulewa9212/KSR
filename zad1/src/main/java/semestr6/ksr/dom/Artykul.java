@@ -9,13 +9,16 @@ import java.util.Map;
 
 public class Artykul {
     private Integer place;
+
+    private String placeString;
     private Integer topic;
     private String bodyString;
     private Map<String , Integer> bodyMap ;
+    private Map<String , Integer> bodyMapToCompare ;
     private List<Integer> bodyVector ;
 
     public Artykul(){
-
+        this.bodyMapToCompare = new LinkedHashMap<>();
         this.bodyMap = new LinkedHashMap<String, Integer>();
     }
     public Artykul(String place, String topic){
@@ -49,6 +52,7 @@ public class Artykul {
         }
     }
 
+
     public void setPlace(Integer place) {
         this.place = place;
     }
@@ -63,7 +67,13 @@ public class Artykul {
             bodyVector.add(number);
         }
     }
+    public String getPlaceString() {
+        return placeString;
+    }
 
+    public void setPlaceString(String placeString) {
+        this.placeString = placeString;
+    }
     public String getBodyString() {
         return bodyString;
     }
@@ -74,6 +84,18 @@ public class Artykul {
 
     public  void addWordToBodyString(String next){
         bodyString = bodyString + " " + next;
+    }
+
+    public Map<String, Integer> getBodyMapToCompare() {
+        return bodyMapToCompare;
+    }
+
+    public void setBodyMapToCompare(Map<String, Integer> bodyMapToCompare) {
+        this.bodyMapToCompare = bodyMapToCompare;
+    }
+
+    public void setBodyVector(List<Integer> bodyVector) {
+        this.bodyVector = bodyVector;
     }
 
 }

@@ -16,6 +16,13 @@ import java.util.Set;
 import java.util.Stack;
 
 public class Extractor {
+    String path = new File(".").getCanonicalPath()+"/src/main/java/semestr6/ksr/files/";
+    InputStream posModelIn = new FileInputStream(path+"en-pos-maxent.bin");
+    POSModel posModel = new POSModel(posModelIn);
+    POSTaggerME posTagger = new POSTaggerME(posModel);
+
+    public Extractor() throws IOException {
+    }
 
     /**
      * This method is used to detect sentences in a paragraph/string
@@ -55,9 +62,9 @@ public class Extractor {
             double tokenProbs[] = tokenizer.getTokenProbabilities();
 
             System.out.println("Token\t: Probability\n-------------------------------");
-            for(int i=0;i<tokens.length;i++){
-            //    System.out.println(tokens[i]+"\t: "+tokenProbs[i]);
-            }
+//            for(int i=0;i<tokens.length;i++){
+//            //    System.out.println(tokens[i]+"\t: "+tokenProbs[i]);
+//            }
             modelIn.close();
             return tokens;
         }
@@ -92,14 +99,12 @@ public class Extractor {
 
     }
     public String[] postTagger(String[] tokens) throws IOException {
-        String path = new File(".").getCanonicalPath()+"/src/main/java/semestr6/ksr/files/";
-        InputStream posModelIn = new FileInputStream(path+"en-pos-maxent.bin");
-        POSModel posModel = new POSModel(posModelIn);
-        POSTaggerME posTagger = new POSTaggerME(posModel);
+
+
         String tags[] = posTagger.tag(tokens);
-        for(int i =0 ;i<tags.length;i++){
-        //    System.out.println(tokens[i]+"  = " + tags[i]);
-        }
+//        for(int i =0 ;i<tags.length;i++){
+//            System.out.println(tokens[i]+"  = " + tags[i]);
+//        }
         return tags;
     }
 
@@ -110,7 +115,6 @@ public class Extractor {
         int nMax ;
         int nMin ;
         int countEquals=0;
-
         if(ns1>ns2){ nMax=ns1;nMin=ns2;
         }else { nMax=ns2;nMin=ns1; }
 
@@ -127,7 +131,11 @@ public class Extractor {
       //  System.out.println(string1 +" | "+ string1 + " = " + result);
         return result;
     }
-    public String stemmWord(String string) throws IOException {
+    public String stemmWord(String string,int n1) throws IOException {
+        if(string.length()<n1){
+            return string;
+        }
+
         String path = new File(".").getCanonicalPath()+"/src/main/java/semestr6/ksr/files/";
         File lemmas = new File(path + "en-lemmatizer.dict");
         Scanner scanner = new Scanner(lemmas);
@@ -140,16 +148,14 @@ public class Extractor {
         System.out.println(string);
         System.out.println("-----------------------------------------");
         stringStack.push(string);
-//        if(scanner.hasNext()){
-//            next=scanner.next().toLowerCase();
-//            sim =calcRestrictNgram(1,3,string,next);
-//            simStack.push(sim);
-//            stringStack.push(next);
-//            System.out.println(next +" = "+ sim);
-//        }
+
+
+
+
+
         while (scanner.hasNext()) {
             next = scanner.next().toLowerCase();
-            sim1 =calcRestrictNgram(1,1,string,next);
+            sim1 =calcRestrictNgram(1,string.length(),string,next);
             if(sim1 > sim){
                 simStack.push(sim1);
                 stringStack.push(next);

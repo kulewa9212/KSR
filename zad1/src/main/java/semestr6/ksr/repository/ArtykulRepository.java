@@ -7,14 +7,18 @@ import java.util.*;
 public class ArtykulRepository {
     private List<Artykul> artykulList;
     private Set<String> uniqePlaces;
+    private List<Artykul> lerningList;
+    private List<Artykul> testList;
     private Map<String,Integer> uniqeTopics;
     private Map<String,Integer> uniqueWords;
 
     public ArtykulRepository(){
-        this.artykulList=new ArrayList<Artykul>();
-        this.uniqePlaces=new LinkedHashSet<String>();
+        this.artykulList = new ArrayList<Artykul>();
+        this.uniqePlaces = new LinkedHashSet<String>();
         this.uniqeTopics = new LinkedHashMap<String, Integer>();
-        this.uniqueWords=new HashMap<>();
+        this.uniqueWords = new HashMap<>();
+        this.lerningList = new ArrayList<>();
+        this.testList = new ArrayList<>();
 
         }
         public void addArtykul(Artykul artykul){
@@ -54,6 +58,11 @@ public class ArtykulRepository {
         return uniqePlaces;
     }
 
+    public List<Artykul> getLerningList() { return lerningList; }
 
+    public void setLerningList(List<Artykul> lerningList) { this.lerningList = lerningList; }
 
+    public List<Artykul> getTestList() { return testList; }
+
+    public void setTestList(List<Artykul> testList) { this.testList = testList; }
 }

@@ -1,69 +1,59 @@
 package semestr6.ksr.dom;
 
-import jdk.internal.org.objectweb.asm.tree.InnerClassNode;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Artykul {
-    private Integer place;
+public class Artykul extends Sample {
+    private Double place;
 
     private String placeString;
-    private Integer topic;
+    private Double topic;
+    private String topicString;
     private String bodyString;
-    private Map<String , Integer> bodyMap ;
-    private Map<String , Integer> bodyMapToCompare ;
-    private List<Integer> bodyVector ;
+    private List<Double> bodyVector ;
 
     public Artykul(){
-        this.bodyMapToCompare = new LinkedHashMap<>();
-        this.bodyMap = new LinkedHashMap<String, Integer>();
-    }
-    public Artykul(String place, String topic){
-
-        this.bodyMap = new LinkedHashMap<String, Integer>();
+        this.featuresToCompare = new LinkedHashMap<>();
+        this.features = new LinkedHashMap<String, Double>();
     }
 
-    public Integer getPlace() {
+
+    public Double getPlace() {
         return place;
     }
 
 
-    public Integer getTopic() { return topic; }
+    public Double getTopic() { return topic; }
 
-    public Map<String, Integer> getBody() {
-        return bodyMap;
-    }
-
-    public List<Integer> getBodyVector() {
+    public List<Double> getBodyVector() {
         return bodyVector;
     }
 
-    public void addWordToBodyMap(String word,Boolean zero){
-        if (bodyMap.get(word)!=null&& zero==false){
-            bodyMap.put(word,bodyMap.get(word)+1);
-        }else if(bodyMap.get(word)==null&&zero==true){
-            bodyMap.put(word, 0);
+    public void addFeature(String word, Boolean zero){
+        if (features.get(word)!=null&& zero==false){
+            features.put(word, features.get(word)+1);
+        }else if(features.get(word)==null&&zero==true){
+            features.put(word, 0.0);
         }
         else if (zero==false) {
-            bodyMap.put(word, 1);
+            features.put(word, 1.0);
         }
     }
 
 
-    public void setPlace(Integer place) {
+    public void setPlace(Double place) {
         this.place = place;
     }
 
-    public void setTopic(Integer topic) {
+    public void setTopic(Double topic) {
         this.topic = topic;
     }
     public void convertBodyToVector(){
-        bodyVector = new ArrayList<Integer>();
+        bodyVector = new ArrayList<Double>();
 
-        for (Integer number : bodyMap.values()){
+        for (Double number : features.values()){
             bodyVector.add(number);
         }
     }
@@ -86,16 +76,15 @@ public class Artykul {
         bodyString = bodyString + " " + next;
     }
 
-    public Map<String, Integer> getBodyMapToCompare() {
-        return bodyMapToCompare;
-    }
-
-    public void setBodyMapToCompare(Map<String, Integer> bodyMapToCompare) {
-        this.bodyMapToCompare = bodyMapToCompare;
-    }
-
-    public void setBodyVector(List<Integer> bodyVector) {
+    public void setBodyVector(List<Double> bodyVector) {
         this.bodyVector = bodyVector;
     }
 
+    public String getTopicString() {
+        return topicString;
+    }
+
+    public void setTopicString(String topicString) {
+        this.topicString = topicString;
+    }
 }

@@ -10,18 +10,32 @@ import opennlp.tools.tokenize.TokenizerModel;
 import opennlp.tools.util.InvalidFormatException;
 
 import java.io.*;
-import java.util.HashSet;
-import java.util.Scanner;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 
 public class Extractor {
     String path = new File(".").getCanonicalPath()+"/src/main/java/semestr6/ksr/files/";
     InputStream posModelIn = new FileInputStream(path+"en-pos-maxent.bin");
     POSModel posModel = new POSModel(posModelIn);
     POSTaggerME posTagger = new POSTaggerME(posModel);
-
+    File lemmas = new File(path + "en-lemmatizer.dict");
+    List <String> lemmasList;
+    int nMax ;
+    int nMin ;
+    double sim;
+    double sim1;
+    int countEquals;
+    int ns1;
+    int ns2;
+    String gram1 ="";
+    String gram2 ="";
+    Scanner scanner;
     public Extractor() throws IOException {
+        this.lemmasList = new ArrayList<>();
+        this.scanner  = new Scanner(lemmas);
+        while (scanner.hasNext()) {
+            String next = scanner.next();
+            lemmasList.add(next);
+        }
     }
 
     /**
@@ -30,8 +44,8 @@ public class Extractor {
      * @throws IOException
      */
     public String[] sentenceDetect(String  bodyString) throws IOException,InvalidFormatException {
-        String path = new File(".").getCanonicalPath()+"/src/main/java/semestr6/ksr/files/";
-        // refer to model file "en-sent,bin", available at link http://opennlp.sourceforge.net/models-1.5/
+//        String path = new File(".").getCanonicalPath()+"/src/main/java/semestr6/ksr/files/";
+//         refer to model file "en-sent,bin", available at link http://opennlp.sourceforge.net/models-1.5/
 
         //System.out.println(bodyString);
         InputStream is = new FileInputStream(path+"en-sent.bin");
@@ -51,7 +65,7 @@ public class Extractor {
 
 
     public String[] tokenizer(String  bodyString) throws IOException {
-        String path = new File(".").getCanonicalPath()+"/src/main/java/semestr6/ksr/files/";
+       // String path = new File(".").getCanonicalPath()+"/src/main/java/semestr6/ksr/files/";
         InputStream modelIn = null;
 
         try {
@@ -75,19 +89,21 @@ public class Extractor {
     }
 
     public void prepareCoreWords() throws IOException {
-        String path = new File(".").getCanonicalPath()+"/src/main/java/semestr6/ksr/files/";
+        //String path = new File(".").getCanonicalPath()+"/src/main/java/semestr6/ksr/files/";
         File lemmas = new File(path + "en-lemmatizer.dict");
         Scanner scanner = new Scanner(lemmas);
         String next = "";
+
         Set<String> newLemmas = new HashSet<String>();
         while (scanner.hasNext()) {
             next = scanner.next().toLowerCase();
             newLemmas.add(next);
             next = scanner.next();
+            next = scanner.next();
 
         }
         try (FileWriter file = new FileWriter("lemma.txt")) {
-            String sb = " ";
+
             for (String next1 :newLemmas) {  // Note: added a i++
                 file.write(next1+"\n");
                 // file.close();   <---- NOPE: don't do this
@@ -109,62 +125,54 @@ public class Extractor {
     }
 
     private  Double calcRestrictNgram (int n1,int n2, String string1,String string2 ){
-        int ns1 = string1.toCharArray().length;
-        int ns2 = string2.toCharArray().length;
+        ns1 = string1.toCharArray().length;
+        ns2 = string2.toCharArray().length;
         n2=ns1;
-        int nMax ;
-        int nMin ;
-        int countEquals=0;
+        countEquals=0;
         if(ns1>ns2){ nMax=ns1;nMin=ns2;
         }else { nMax=ns2;nMin=ns1; }
-
-        String gram1 ="";
-        String gram2 ="";
-        for(int i =n1 ;i<=n2;i++ ){
-            for(int j =0;j<=nMin-i;j++){
+        gram1 ="";
+        gram2 ="";
+        for(int i =n1 ;i<=n2;++i ){
+            for(int j =0;j<=nMin-i;++j){
                 if (string1.substring(j,j+i).equals(string2.substring(j,j+i))){
-                    countEquals++;
+                    ++countEquals;
                 }
             }
         }
-        double result = ((double)2*(double)countEquals)/(((double)nMax-(double)n1+(double)1)*((double)nMax-(double)n1+(double)2)-((double)nMax - (double)n2 + (double)1)*((double)nMax - (double)n2));
+
       //  System.out.println(string1 +" | "+ string1 + " = " + result);
-        return result;
+        return (double)(2*countEquals)/((nMax - n1 + 1)*(nMax - n1 + 2 )-( nMax - n2 + 1)*(nMax - n2));
     }
     public String stemmWord(String string,int n1) throws IOException {
         if(string.length()<n1){
             return string;
         }
 
-        String path = new File(".").getCanonicalPath()+"/src/main/java/semestr6/ksr/files/";
-        File lemmas = new File(path + "en-lemmatizer.dict");
-        Scanner scanner = new Scanner(lemmas);
+
+
         String next = "";
-        double sim=0;
-        double sim1=0;
+        sim=0;
+        sim1=0;
         Stack<Double> simStack = new Stack<>();
         Stack<String> stringStack = new Stack<>();
-        System.out.println("-----------------------------------------");
-        System.out.println(string);
-        System.out.println("-----------------------------------------");
+//        System.out.println("-----------------------------------------");
+//        System.out.println(string);
+//        System.out.println("-----------------------------------------");
         stringStack.push(string);
 
 
-
-
-
-        while (scanner.hasNext()) {
-            next = scanner.next().toLowerCase();
-            sim1 =calcRestrictNgram(1,string.length(),string,next);
+        for(String lemma :lemmasList){
+            sim1 =calcRestrictNgram(1,string.length(),string,lemma);
             if(sim1 > sim){
                 simStack.push(sim1);
-                stringStack.push(next);
+                stringStack.push(lemma);
                 sim=sim1;
-                System.out.println(next +" = "+ sim);
+//                System.out.println(next +" = "+ sim);
             }
-
-
         }
+
+
         return stringStack.pop();
 
     }

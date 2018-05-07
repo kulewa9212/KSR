@@ -1,12 +1,12 @@
 package semestr6.ksr;
 
+import semestr6.ksr.controller.ArtykulKnnPrepartor;
+import semestr6.ksr.controller.Knn;
 import semestr6.ksr.controller.Parser;
 import semestr6.ksr.repository.ArtykulRepository;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URL;
 import java.util.*;
 
 /**
@@ -36,10 +36,6 @@ public class App
         File topicsFile = new File ( path + "all-topics-strings.lc.txt");
 
 
-
-
-        System.out.println( "Hello World! xxxxxx" );
-
         Parser parser = new Parser(artykulRepository,reutFile,ignoredWordsFile,nounsFile,simpleNounsFile,adverbsFile,topicsFile);
         parser.parse();
         //System.out.println(parser.artykulRepository.getUniqueWords());
@@ -47,15 +43,18 @@ public class App
         System.out.println(map1);
         //lejakSystem.out.println(parser.artykulRepository.getArtykulList().get(4).getBodyMother().toString());
         System.out.println(parser.artykulRepository.getUniqueWords().size());
+        ArtykulKnnPrepartor artykulKnnPrepartor = new ArtykulKnnPrepartor(parser.artykulRepository);
+        Knn knn = new Knn("euklidean");
+        knn.run(artykulKnnPrepartor.prepareData());
 
-        Metryki metryki = new Metryki();
-        metryki.knn(parser.artykulRepository,"asd",parser.artykulRepository.getArtykulList().get(4));
+
+//        metryki.knn("asd",parser.artykulRepository.getArtykulList().get(4));
 
 
     }
 
 
-    private static Map<String, Integer> sortByValue(Map<String, Integer> unsortMap) {
+    public static Map<String, Integer> sortByValue(Map<String, Integer> unsortMap) {
 
         // 1. Convert Map to List of Map
         List<Map.Entry<String, Integer>> list =

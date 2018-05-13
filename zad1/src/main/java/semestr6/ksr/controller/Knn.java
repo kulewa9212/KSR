@@ -1,17 +1,15 @@
 package semestr6.ksr.controller;
 
-import semestr6.ksr.Metrics;
+import semestr6.ksr.MetricsAndSimilars;
 import semestr6.ksr.dom.DistanceResult;
 import semestr6.ksr.dom.Sample;
 import semestr6.ksr.repository.SamplesRepository;
 
 import java.util.*;
 
-import static semestr6.ksr.App.sortByValue;
-
 public class Knn {
     String metric;
-    Metrics metricCalc;
+    MetricsAndSimilars metricCalc;
     List<Double> vector1;
     List<Double> vector2;
     Map<String,Double> results = new HashMap<>();
@@ -21,7 +19,7 @@ public class Knn {
 
     public Knn(String metric) {
         this.metric = metric;
-        this.metricCalc = new Metrics();
+        this.metricCalc = new MetricsAndSimilars();
         this.vector1 = new ArrayList<>();
         this.vector2 = new ArrayList<>();
         this.statistics = new Statistics();

@@ -1,0 +1,6 @@
+west-germany
+usa
+france
+uk
+canada
+japan

@@ -2,37 +2,67 @@ package semestr6.ksr.repository;
 
 import semestr6.ksr.dom.Artykul;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class ArtykulRepository {
     private List<Artykul> artykulList;
     private Set<String> uniqePlaces;
-    private Set<String> uniqeTopics;
-    private Set<String> uniqueWords;
-    private List<String> ignoredWords;
+    private List<Artykul> lerningList;
+    private List<Artykul> testList;
+    private Map<String,Integer> uniqeTopics;
+    private Map<String,Integer> uniqueWords;
+
     public ArtykulRepository(){
-        this.artykulList=new ArrayList<Artykul>();
-        this.uniqePlaces=new LinkedHashSet<String>();
-        this.uniqeTopics = new LinkedHashSet<String>();
-        this.uniqueWords=new LinkedHashSet<String>();
-        this.ignoredWords = new ArrayList<String>();
+        this.artykulList = new ArrayList<Artykul>();
+        this.uniqePlaces = new LinkedHashSet<String>();
+        this.uniqeTopics = new LinkedHashMap<String, Integer>();
+        this.uniqueWords = new HashMap<>();
+        this.lerningList = new ArrayList<>();
+        this.testList = new ArrayList<>();
 
         }
         public void addArtykul(Artykul artykul){
         artykulList.add(artykul);
         }
         public void addUniqeWord(String word){
-        uniqueWords.add(word);
+
+            if (uniqueWords.get(word)!=null){
+                uniqueWords.put(word,uniqueWords.get(word)+1);
+            }
+            else  {
+                uniqueWords.put(word, 1);
+            }
         }
 
-    public Set<String> getUniqueWords() {
+    public Map<String,Integer> getUniqueWords() {
         return uniqueWords;
     }
 
     public List<Artykul> getArtykulList() {
         return artykulList;
     }
+
+    public void setUniqePlaces(Set<String> uniqePlaces) {
+        this.uniqePlaces = uniqePlaces;
+    }
+
+    public Map<String, Integer> getUniqeTopics() {
+        return uniqeTopics;
+    }
+
+    public void setUniqeTopics(Map<String, Integer> uniqeTopics) {
+        this.uniqeTopics = uniqeTopics;
+    }
+
+    public Set<String> getUniqePlaces() {
+        return uniqePlaces;
+    }
+
+    public List<Artykul> getLerningList() { return lerningList; }
+
+    public void setLerningList(List<Artykul> lerningList) { this.lerningList = lerningList; }
+
+    public List<Artykul> getTestList() { return testList; }
+
+    public void setTestList(List<Artykul> testList) { this.testList = testList; }
 }

@@ -5,67 +5,86 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Artykul {
-    private String place;
-    private String topic;
-    private Map<String , Integer> body ;
+public class Artykul extends Sample {
+    private Double place;
 
-
-
-    private List<Integer> bodyMother ;
+    private String placeString;
+    private Double topic;
+    private String topicString;
+    private String bodyString;
+    private List<Double> bodyVector ;
 
     public Artykul(){
-        this.place= "";
-        this.topic= "";
-        this.body = new LinkedHashMap<String, Integer>();
-    }
-    public Artykul(String place, String topic){
-        this.place = place;
-        this.topic = topic;
-        this.body = new LinkedHashMap<String, Integer>();
+        this.featuresToCompare = new LinkedHashMap<>();
+        this.features = new LinkedHashMap<String, Double>();
     }
 
-    public String getPlace() {
+
+    public Double getPlace() {
         return place;
     }
 
 
-    public String getTopic() {
-        return topic;
+    public Double getTopic() { return topic; }
+
+    public List<Double> getBodyVector() {
+        return bodyVector;
     }
 
-    public Map<String, Integer> getBody() {
-        return body;
-    }
-
-    public List<Integer> getBodyMother() {
-        return bodyMother;
-    }
-
-    public void addWordToBody(String word,Boolean zero){
-        if (body.get(word)!=null&& zero==false){
-            body.put(word,body.get(word)+1);
-        }else if(body.get(word)==null&&zero==true){
-            body.put(word, 0);
+    public void addFeature(String word, Boolean zero){
+        if (features.get(word)!=null&& zero==false){
+            features.put(word, features.get(word)+1);
+        }else if(features.get(word)==null&&zero==true){
+            features.put(word, 0.0);
         }
         else if (zero==false) {
-            body.put(word, 1);
+            features.put(word, 1.0);
         }
     }
 
-    public void setPlace(String place) {
+
+    public void setPlace(Double place) {
         this.place = place;
     }
 
-    public void setTopic(String topic) {
+    public void setTopic(Double topic) {
         this.topic = topic;
     }
-    public void convertBodyToMother(){
-        bodyMother = new ArrayList<Integer>();
+    public void convertBodyToVector(){
+        bodyVector = new ArrayList<Double>();
 
-        for (Integer number : body.values()){
-            bodyMother.add(number);
+        for (Double number : features.values()){
+            bodyVector.add(number);
         }
     }
+    public String getPlaceString() {
+        return placeString;
+    }
 
+    public void setPlaceString(String placeString) {
+        this.placeString = placeString;
+    }
+    public String getBodyString() {
+        return bodyString;
+    }
+
+    public void setBodyString(String bodyString) {
+        this.bodyString = bodyString;
+    }
+
+    public  void addWordToBodyString(String next){
+        bodyString = bodyString + " " + next;
+    }
+
+    public void setBodyVector(List<Double> bodyVector) {
+        this.bodyVector = bodyVector;
+    }
+
+    public String getTopicString() {
+        return topicString;
+    }
+
+    public void setTopicString(String topicString) {
+        this.topicString = topicString;
+    }
 }

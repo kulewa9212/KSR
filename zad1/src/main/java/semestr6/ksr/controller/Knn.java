@@ -38,7 +38,7 @@ public class Knn {
             for (Sample lerningSample : samplesRepository.getLerningList()) {
                 validSample.getFeaturesToCompare().clear();
                 lerningSample.getFeaturesToCompare().clear();
-                if(!metric.equals("simsentences")){
+                if(!metric[2].equals("simsentences")){
                     for (String key : validSample.getFeatures().keySet()) {
                         validSample.getFeaturesToCompare().put(key, validSample.getFeatures().get(key));
                         if (lerningSample.getFeatures().containsKey(key)) {

@@ -46,13 +46,14 @@ public class App
         File topicsFile = new File ( path + "all-topics-strings.lc.txt");
         SamplesRepository samplesRepository = new SamplesRepository();
         System.out.println(args[1]);
+        Map<String, Double> map1 = new LinkedHashMap<>() ;
         if(args[0].equals("text")) {
             Parser parser = new Parser(artykulRepository, reutFile, ignoredWordsFile, nounsFile, simpleNounsFile, adverbsFile, topicsFile,args);
             parser.parse();
             System.out.println(parser.artykulRepository.getUniqueWords().size());
             ArtykulKnnPrepartor artykulKnnPrepartor = new ArtykulKnnPrepartor(parser.artykulRepository, args);
             samplesRepository = artykulKnnPrepartor.prepareData();
-            Map<String, Double> map1 =sortByValue(parser.artykulRepository.getUniqueWords());
+            map1 =sortByValue(parser.artykulRepository.getUniqueWords());
             System.out.println(map1);
 
         }
@@ -65,7 +66,7 @@ public class App
         long ekstractTime = startKnnTime - startTime;
         long knnTime = stopTime - startKnnTime;
         long runTime = stopTime - startTime;
-        ResultSaver resultSaver = new ResultSaver(runTime,ekstractTime,knnTime,artykulRepository,samplesRepository,path,args);
+        ResultSaver resultSaver = new ResultSaver(runTime,ekstractTime,knnTime,artykulRepository,samplesRepository,path,args,map1);
         resultSaver.runn();
 //        metryki.knn("asd",parser.artykulRepository.getArtykulList().get(4));
 

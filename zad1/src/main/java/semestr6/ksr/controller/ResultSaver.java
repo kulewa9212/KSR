@@ -21,9 +21,12 @@ public class    ResultSaver {
     SamplesRepository samplesRepository;
     String path;
     String[] args;
+    String unikalne;
+    String najmniej;
+    String najwiecej;
+    Map<String, Double> map1;
 
-
-    public ResultSaver(long time,long time1,long time2, ArtykulRepository artykulRepository, SamplesRepository samplesRepository, String path, String[] args) {
+    public ResultSaver(long time,long time1,long time2, ArtykulRepository artykulRepository, SamplesRepository samplesRepository, String path, String[] args, Map<String, Double> map1 ) {
         this.time = time;
         this.artykulRepository = artykulRepository;
         this.samplesRepository = samplesRepository;
@@ -31,6 +34,8 @@ public class    ResultSaver {
         this.args = args;
         this.time1 = time1;
         this.time2 = time2;
+        this.map1 =map1;
+
     }
     public void runn() throws IOException {
         int size =samplesRepository.getLerningList().size()+samplesRepository.getValidateList().size();
@@ -47,15 +52,31 @@ public class    ResultSaver {
         String filepath =path + "results/KNN_results_" + String.valueOf(LocalTime.now()) + Arrays.toString(args) + ".txt";
         Files.createFile(Paths.get(filepath));
         PrintWriter printWriter = new PrintWriter(filepath);
-        printWriter.print("Enter params: \n" +
-                Arrays.toString(args)+"\n\n" +
-                "Wyniki: \n" +
-                "Sklasyfikowane próbki: "+ size +" \n" +
-                "Zbiór uczący: "+"\n"+
-                "Ilość unikalnych słów: "+ artykulRepository.getUniqueWords().size() + "\n"+
-                "Prawidłowo sklasyfikowanych: "+ efectivity +"% \n" +
-                "Sczegóły klasyfikacj : " + samplesRepository.getEfficiency() + "\n" +
-                "Total time: " +time+ "   extract time: "+time1 + "  KNN Time: "+time2+ "\n");
+        if(artykulRepository.getUniqueWords()!=null) {
+            printWriter.print("Parametry wejściowe: \n" +
+                    Arrays.toString(args) + "\n\n" +
+                    "Wyniki: \n" +
+                    "Sklasyfikowane próbki: " + size + " \n" +
+                    "Zbiór uczący: " + samplesRepository.getLerningList().size() + "\n" +
+                    "Zbiór walidacyjny: " + samplesRepository.getValidateList().size() + "\n" +
+                    "Ilość unikalnych słów: " + map1.size() + "\n" +
+                    "Najmniejsza liczność słowa: " + map1.values().toArray()[0] + "\n" +
+                    "Najwieksza liczność słowa: " + map1.values().toArray()[map1.values().toArray().length - 1] + "\n" +
+                    "Prawidłowo sklasyfikowanych: " + efectivity + "% \n" +
+                    "Sczegóły klasyfikacj : " + samplesRepository.getEfficiency() + "\n" +
+                    "Total time: " + time + "   extract time: " + time1 + "  KNN Time: " + time2 + "\n");
+        }else{
+            printWriter.print("Parametry wejściowe: \n" +
+                    Arrays.toString(args) + "\n\n" +
+                    "Wyniki: \n" +
+                    "Sklasyfikowane próbki: " + size + " \n" +
+                    "Zbiór uczący: " + samplesRepository.getLerningList().size() + "\n" +
+                    "Zbiór walidacyjny: " + samplesRepository.getValidateList().size() + "\n" +
+                    "Prawidłowo sklasyfikowanych: " + efectivity + "% \n" +
+                    "Sczegóły klasyfikacj : " + samplesRepository.getEfficiency() + "\n" +
+                    "Total time: " + time + "   extract time: " + time1 + "  KNN Time: " + time2 + "\n");
+
+        }
         printWriter.close();
 
     }

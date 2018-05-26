@@ -31,6 +31,7 @@ private  double result=0;
     int countEquals;
     int ns1;
     int ns2;
+    String next;
     String gram1 ="";
     String gram2 ="";
     Stack<Double> simStack = new Stack<>();
@@ -72,9 +73,9 @@ private  double result=0;
     public Double run (String metric,Map<String, Double> v1, Map<String, Double> v2) {
         result = 0;
         denominator = 0;
-        for(Map.Entry<String, Double> entry : v1.entrySet()){
-            denominator = denominator + entry.getValue();
-            result= result + maxsimimalry(entry.getKey(),v2.keySet())*entry.getValue();
+        for(String entry : v1.keySet()){
+            denominator = denominator + v1.get(entry);
+            result= result + maxsimimalry(entry,v2.keySet())*v1.get(entry);
         }
         return result/denominator;
     }
@@ -127,7 +128,7 @@ private  double result=0;
 
 
 
-        String next = "";
+        next = "";
         sim=0;
         sim1=0;
         simStack.clear();

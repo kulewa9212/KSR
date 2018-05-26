@@ -3,14 +3,24 @@ package semestr6.ksr;
 import semestr6.ksr.controller.ArtykulKnnPrepartor;
 import semestr6.ksr.controller.Knn;
 import semestr6.ksr.controller.Parser;
+import semestr6.ksr.controller.ResultSaver;
 import semestr6.ksr.repository.ArtykulRepository;
+import semestr6.ksr.repository.SamplesRepository;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
 /**
- * Hello world!
+ * args[0] - rodzaj pobieranych danych (text || dataset)
+ * args[1] - nazwa pluku do pobrania, ktory znajduje sie w folderze files
+ * args[2] - odleglość/podobieństwo (euklidean || taxi || manhatan || -
+ * args[3] - rodzaj ekstrakcji cech (TF || TFIDF)
+ * args[4] - rodzaj stemizacji P - porter, SW - stop words, TG -usunięcie czesci słów,
+ *           NMBR - zamiana liczb na wspólny znacznik "CD" (np P-SW-TG-NMBR)
+ * args[5] - etykieta <PLACES> || <TOPICS>
+ * args[6] - knn
+ *
  *
  */
 
@@ -25,53 +35,62 @@ public class App
 
 
     {
-
+        long startTime = System.currentTimeMillis();
         ArtykulRepository artykulRepository = new ArtykulRepository();
         String path = new File(".").getCanonicalPath()+"/src/main/java/semestr6/ksr/files/";
-        File reutFile = new File(path + "reut2-001.sgm");
+        File reutFile = new File(path + args[1]);
         File ignoredWordsFile = new File(path + "ignoredWordsList");
         File nounsFile = new File(path + "nouns.txt");
         File simpleNounsFile =  new File (path + "simpleNouns.txt");
-        File adverbsFile = new File (path +"adverbs.txt");
+        File adverbsFile = new File (path + "adverbs.txt");
         File topicsFile = new File ( path + "all-topics-strings.lc.txt");
+        SamplesRepository samplesRepository = new SamplesRepository();
+        System.out.println(args[1]);
+        if(args[0].equals("text")) {
+            Parser parser = new Parser(artykulRepository, reutFile, ignoredWordsFile, nounsFile, simpleNounsFile, adverbsFile, topicsFile,args);
+            parser.parse();
+            System.out.println(parser.artykulRepository.getUniqueWords().size());
+            ArtykulKnnPrepartor artykulKnnPrepartor = new ArtykulKnnPrepartor(parser.artykulRepository, args);
+            samplesRepository = artykulKnnPrepartor.prepareData();
+            Map<String, Double> map1 =sortByValue(parser.artykulRepository.getUniqueWords());
+            System.out.println(map1);
 
-
-        Parser parser = new Parser(artykulRepository,reutFile,ignoredWordsFile,nounsFile,simpleNounsFile,adverbsFile,topicsFile);
-        parser.parse();
-        //System.out.println(parser.artykulRepository.getUniqueWords());
-        Map<String, Integer> map1 =sortByValue(parser.artykulRepository.getUniqueWords());
-        System.out.println(map1);
+        }
+            //System.out.println(parser.artykulRepository.getUniqueWords());
         //lejakSystem.out.println(parser.artykulRepository.getArtykulList().get(4).getBodyMother().toString());
-        System.out.println(parser.artykulRepository.getUniqueWords().size());
-        ArtykulKnnPrepartor artykulKnnPrepartor = new ArtykulKnnPrepartor(parser.artykulRepository);
-        Knn knn = new Knn("euklidean");
-        knn.run(artykulKnnPrepartor.prepareData());
-
-
+        long startKnnTime = System.currentTimeMillis();
+        Knn knn = new Knn(args);
+        knn.run(samplesRepository);
+        long stopTime = System.currentTimeMillis();
+        long ekstractTime = startKnnTime - startTime;
+        long knnTime = stopTime - startKnnTime;
+        long runTime = stopTime - startTime;
+        ResultSaver resultSaver = new ResultSaver(runTime,ekstractTime,knnTime,artykulRepository,samplesRepository,path,args);
+        resultSaver.runn();
 //        metryki.knn("asd",parser.artykulRepository.getArtykulList().get(4));
 
 
     }
 
 
-    public static Map<String, Integer> sortByValue(Map<String, Integer> unsortMap) {
+    public static Map<String, Double> sortByValue(Map<String, Double> unsortMap) {
 
         // 1. Convert Map to List of Map
-        List<Map.Entry<String, Integer>> list =
-                new LinkedList<Map.Entry<String, Integer>>(unsortMap.entrySet());
+        List<Map.Entry<String, Double>> list =
+                new LinkedList<Map.Entry<String, Double>>(unsortMap.entrySet());
 
         // 2. Sort list with Collections.sort(), provide a custom Comparator
         //    Try switch the o1 o2 position for a different order
-        Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
-            public int compare(Map.Entry<String, Integer> o1,
-                               Map.Entry<String, Integer> o2) {
+        Collections.sort(list, new Comparator<Map.Entry<String, Double>>() {
+            public int compare(Map.Entry<String, Double> o1,
+                               Map.Entry<String, Double> o2) {
                 return (o1.getValue()).compareTo(o2.getValue());
             }
         });
 
         // 3. Loop the sorted list and put it into a new insertion order Map LinkedHashMap
-        Map<String, Integer> sortedMap = new LinkedHashMap<String, Integer>();
-        for (Map.Entry<String, Integer> entry : list) {
+        Map<String, Double> sortedMap = new LinkedHashMap<String, Double>();
+        for (Map.Entry<String, Double> entry : list) {
             sortedMap.put(entry.getKey(), entry.getValue());
         }
 

@@ -3,45 +3,42 @@ package semestr6.ksr.repository;
 
 import semestr6.ksr.dom.Sample;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SamplesRepository {
-    List<Sample> lerningList;
-    List<Sample> validateList;
+    Set<Sample> lerningList;
+    Set<Sample> validateList;
     Map<String,Integer> goodResults;
     Map<String,Integer>  badResults;
     Map<String,Double> efficiency;
 
-    public  SamplesRepository(List<Sample> lerningList, List<Sample> validateList){
+    public  SamplesRepository(Set<Sample> lerningList, Set<Sample> validateList){
         this.lerningList = lerningList;
         this.validateList = validateList;
     }
 
     public SamplesRepository() {
-        this.lerningList = new ArrayList<>();
-        this.validateList = new ArrayList<>();
+        this.lerningList = new HashSet<>();
+        this.validateList = new HashSet<>();
         this.goodResults = new HashMap<>();
         this.badResults = new HashMap<>();
         this.efficiency = new HashMap<>();
 
     }
 
-    public List<Sample> getLerningList() {
+    public Set<Sample> getLerningList() {
         return lerningList;
     }
 
-    public void setLerningList(List<Sample> lerningList) {
+    public void setLerningList(Set<Sample> lerningList) {
         this.lerningList = lerningList;
     }
 
-    public List<Sample> getValidateList() {
+    public Set<Sample> getValidateList() {
         return validateList;
     }
 
-    public void setValidateList(List<Sample> validateList) {
+    public void setValidateList(Set<Sample> validateList) {
         this.validateList = validateList;
     }
 

@@ -18,7 +18,8 @@ public class Extractor {
     POSModel posModel = new POSModel(posModelIn);
     POSTaggerME posTagger = new POSTaggerME(posModel);
     File lemmas = new File(path + "en-lemmatizer.dict");
-    List <String> lemmasList;
+    Stack<Double> simStack = new Stack<>();
+    Stack<String> stringStack = new Stack<>();
     int nMax ;
     int nMin ;
     double sim;
@@ -30,12 +31,7 @@ public class Extractor {
     String gram2 ="";
     Scanner scanner;
     public Extractor() throws IOException {
-        this.lemmasList = new ArrayList<>();
-        this.scanner  = new Scanner(lemmas);
-        while (scanner.hasNext()) {
-            String next = scanner.next();
-            lemmasList.add(next);
-        }
+
     }
 
     /**
@@ -75,7 +71,7 @@ public class Extractor {
             String tokens[] = tokenizer.tokenize(bodyString);
             double tokenProbs[] = tokenizer.getTokenProbabilities();
 
-            System.out.println("Token\t: Probability\n-------------------------------");
+//            System.out.println("Token\t: Probability\n-------------------------------");
 //            for(int i=0;i<tokens.length;i++){
 //            //    System.out.println(tokens[i]+"\t: "+tokenProbs[i]);
 //            }
@@ -90,7 +86,7 @@ public class Extractor {
 
     public void prepareCoreWords() throws IOException {
         //String path = new File(".").getCanonicalPath()+"/src/main/java/semestr6/ksr/files/";
-        File lemmas = new File(path + "en-lemmatizer.dict");
+        File lemmas = new File(path + "ignoredWordsList");
         Scanner scanner = new Scanner(lemmas);
         String next = "";
 
@@ -99,7 +95,7 @@ public class Extractor {
             next = scanner.next().toLowerCase();
             newLemmas.add(next);
             next = scanner.next();
-            next = scanner.next();
+//            next = scanner.next();
 
         }
         try (FileWriter file = new FileWriter("lemma.txt")) {
@@ -124,58 +120,8 @@ public class Extractor {
         return tags;
     }
 
-    private  Double calcRestrictNgram (int n1,int n2, String string1,String string2 ){
-        ns1 = string1.toCharArray().length;
-        ns2 = string2.toCharArray().length;
-        n2=ns1;
-        countEquals=0;
-        if(ns1>ns2){ nMax=ns1;nMin=ns2;
-        }else { nMax=ns2;nMin=ns1; }
-        gram1 ="";
-        gram2 ="";
-        for(int i =n1 ;i<=n2;++i ){
-            for(int j =0;j<=nMin-i;++j){
-                if (string1.substring(j,j+i).equals(string2.substring(j,j+i))){
-                    ++countEquals;
-                }
-            }
-        }
-
-      //  System.out.println(string1 +" | "+ string1 + " = " + result);
-        return (double)(2*countEquals)/((nMax - n1 + 1)*(nMax - n1 + 2 )-( nMax - n2 + 1)*(nMax - n2));
-    }
-    public String stemmWord(String string,int n1) throws IOException {
-        if(string.length()<n1){
-            return string;
-        }
 
 
-
-        String next = "";
-        sim=0;
-        sim1=0;
-        Stack<Double> simStack = new Stack<>();
-        Stack<String> stringStack = new Stack<>();
-//        System.out.println("-----------------------------------------");
-//        System.out.println(string);
-//        System.out.println("-----------------------------------------");
-        stringStack.push(string);
-
-
-        for(String lemma :lemmasList){
-            sim1 =calcRestrictNgram(1,string.length(),string,lemma);
-            if(sim1 > sim){
-                simStack.push(sim1);
-                stringStack.push(lemma);
-                sim=sim1;
-//                System.out.println(next +" = "+ sim);
-            }
-        }
-
-
-        return stringStack.pop();
-
-    }
 
 
 

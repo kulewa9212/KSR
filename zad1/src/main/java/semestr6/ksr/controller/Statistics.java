@@ -76,7 +76,36 @@ public class Statistics {
 
         for(Artykul artykul : artykulRepository.getArtykulList()){
             for(String key  :artykul.getFeatures().keySet()){
-                result=(artykul.getFeatures().get(key)/artykulRepository.getUniqueWords().get(key))*(d/wordsCounts.get(key));
+                if(artykulRepository.getUniqueWords().get(key) != null){
+                    result = (artykul.getFeatures().get(key) / artykulRepository.getUniqueWords().get(key)) * (d / wordsCounts.get(key));
+                }else{
+                    if(wordsCounts.get(key)!=null) {
+
+                        result = (artykul.getFeatures().get(key)) * d ;
+
+                    }
+
+                }
+                newMap.put(key,result);
+                result=0.0;
+            }
+            artykul.setFeatures(newMap);
+            newMap= new LinkedHashMap<>();
+        }
+
+
+    }
+    public void tfidf1(ArtykulRepository artykulRepository){
+        int d = artykulRepository.getUniqueWords().size();
+        Map<String,Double> newMap = new LinkedHashMap<>();
+        Double result=0.0;
+        Double count =0.0;
+        Map<String,Double> wordsCounts = new LinkedHashMap<>();
+
+
+        for(Artykul artykul : artykulRepository.getArtykulList()){
+            for(String key  :artykul.getFeatures().keySet()){
+                result = artykul.getFeatures().get(key)/(artykulRepository.getUniqueWords().get(key)*artykulRepository.getUniqueWords().get(key));
 
                 newMap.put(key,result);
             }

@@ -15,7 +15,6 @@ public class Artykul extends Sample {
     private List<Double> bodyVector ;
 
     public Artykul(){
-        this.featuresToCompare = new LinkedHashMap<>();
         this.features = new LinkedHashMap<String, Double>();
     }
 

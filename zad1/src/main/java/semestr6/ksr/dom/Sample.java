@@ -16,6 +16,7 @@ public class Sample {
         this.label = new String();
         this.features = new LinkedHashMap<>();
         this.distances = new ArrayList<>();
+        this.featuresToCompare = new LinkedHashMap<>();
     }
 
     public String getLabel() {

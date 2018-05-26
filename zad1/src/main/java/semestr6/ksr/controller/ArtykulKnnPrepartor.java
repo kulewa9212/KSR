@@ -6,32 +6,42 @@ import semestr6.ksr.repository.ArtykulRepository;
 import semestr6.ksr.repository.SamplesRepository;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ArtykulKnnPrepartor {
     ArtykulRepository artykulRepository;
-    List<Sample> lerningList;
-    List<Sample> validateList;
+    Set<Sample> lerningList;
+    Set<Sample> validateList;
     SamplesRepository samplesRepository;
+    Statistics statistics;
+    String[] args;
 
-    public ArtykulKnnPrepartor(ArtykulRepository artykulRepository) {
+    public ArtykulKnnPrepartor(ArtykulRepository artykulRepository, String[] args) {
         this.samplesRepository = new SamplesRepository();
         this.artykulRepository = artykulRepository;
-        this.lerningList = new ArrayList<>();
-        this.validateList = new ArrayList<>();
-
-        prepareData();
+        this.lerningList = new HashSet<>();
+        this.validateList = new HashSet<>();
+        this.statistics = new Statistics();
+        this.args = args;
     }
     public SamplesRepository prepareData() {
 
         for (int i = 0; i < artykulRepository.getArtykulList().size(); i++) {
             if (i < artykulRepository.getArtykulList().size() * 0.6) {
                 lerningList.add(artykulRepository.getArtykulList().get(i));
+                artykulRepository.adduniqeWords(artykulRepository.getArtykulList().get(i).getFeatures());
             } else {
+                artykulRepository.adduniqeWords(artykulRepository.getArtykulList().get(i).getFeatures());
                 validateList.add(artykulRepository.getArtykulList().get(i));
             }
         }
-
+        if(args[3].equals("TFIDF1")) {
+            statistics.tfidf1(artykulRepository);
+        }else if(args[3].equals("TFIDF")){
+            statistics.tfidf(artykulRepository);
+        }
         samplesRepository.setLerningList(lerningList);
         samplesRepository.setValidateList(validateList);
         return samplesRepository;

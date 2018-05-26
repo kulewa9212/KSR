@@ -4,21 +4,20 @@ import semestr6.ksr.dom.Artykul;
 
 import java.util.*;
 
-public class ArtykulRepository {
+public class ArtykulRepository extends SamplesRepository{
     private List<Artykul> artykulList;
     private Set<String> uniqePlaces;
-    private List<Artykul> lerningList;
-    private List<Artykul> testList;
     private Map<String,Integer> uniqeTopics;
-    private Map<String,Integer> uniqueWords;
+    private Map<String,Double> uniqueWords;
+
 
     public ArtykulRepository(){
         this.artykulList = new ArrayList<Artykul>();
         this.uniqePlaces = new LinkedHashSet<String>();
         this.uniqeTopics = new LinkedHashMap<String, Integer>();
         this.uniqueWords = new HashMap<>();
-        this.lerningList = new ArrayList<>();
-        this.testList = new ArrayList<>();
+
+
 
         }
         public void addArtykul(Artykul artykul){
@@ -27,15 +26,25 @@ public class ArtykulRepository {
         public void addUniqeWord(String word){
 
             if (uniqueWords.get(word)!=null){
-                uniqueWords.put(word,uniqueWords.get(word)+1);
+                uniqueWords.put(word,uniqueWords.get(word)+1.0);
             }
             else  {
-                uniqueWords.put(word, 1);
+                uniqueWords.put(word, 1.0);
             }
         }
 
-    public Map<String,Integer> getUniqueWords() {
+    public Map<String,Double> getUniqueWords() {
         return uniqueWords;
+    }
+
+    public void adduniqeWords(Map<String,Double> artykulBody){
+        for(Map.Entry<String,Double> entry : artykulBody.entrySet()){
+            if(uniqueWords.get(entry.getKey())!=null){
+                uniqueWords.put(entry.getKey(), uniqueWords.get(entry.getKey()) + entry.getValue());
+            }else{
+                uniqueWords.put(entry.getKey(),entry.getValue());
+            }
+        }
     }
 
     public List<Artykul> getArtykulList() {
@@ -58,11 +67,5 @@ public class ArtykulRepository {
         return uniqePlaces;
     }
 
-    public List<Artykul> getLerningList() { return lerningList; }
 
-    public void setLerningList(List<Artykul> lerningList) { this.lerningList = lerningList; }
-
-    public List<Artykul> getTestList() { return testList; }
-
-    public void setTestList(List<Artykul> testList) { this.testList = testList; }
 }

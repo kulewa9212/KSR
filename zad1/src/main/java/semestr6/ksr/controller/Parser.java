@@ -1,6 +1,7 @@
 package semestr6.ksr.controller;
 
 
+import org.apache.lucene.analysis.hunspell.HunspellStemmer;
 import semestr6.ksr.dom.Artykul;
 import semestr6.ksr.repository.ArtykulRepository;
 
@@ -16,7 +17,7 @@ public class Parser {
     private String areaFlag;
     private Artykul artykul;
     private String next;
-    private List<String> ignoredWordsList;
+    private Set<String> ignoredWordsList;
     private List<String> nounsList;
     private List<String> simpleNounList;
     private List<String> adverbsList;
@@ -26,28 +27,30 @@ public class Parser {
     private Stemmer stemmer = new Stemmer();
     private String label;
     private Statistics statistics;
+    private String[] args;
+    private double c =0;
     public Parser(ArtykulRepository artykulRepository, File reutFile, File ignoredWordsFile, File nounsFile,
-                  File simpleNounsFile, File adverbsFile, File topicsFile) throws IOException {
+                  File simpleNounsFile, File adverbsFile, File topicsFile, String[] args) throws IOException {
         this.artykulRepository = artykulRepository;
         this.reutFile = reutFile;
         this.areaFlag = new String();
         this.artykul = new Artykul();
         this.next = new String();
         this.ignoredWordsList = prepareIgnoredWordsList(ignoredWordsFile);
-        this.nounsList = prepareIgnoredWordsList(nounsFile);
-        this.simpleNounList = prepareIgnoredWordsList(simpleNounsFile);
-        this.adverbsList = prepareIgnoredWordsList(adverbsFile);
+//        this.nounsList = prepareIgnoredWordsList(nounsFile);
+//        this.simpleNounList = prepareIgnoredWordsList(simpleNounsFile);
+//        this.adverbsList = prepareIgnoredWordsList(adverbsFile);
         this.uniqeTopics = filluniqe(topicsFile);
         this.extractor = new Extractor();
         this.label = "";
         this.statistics = new Statistics();
-
+        this.args = args;
 
     }
 
     public void parse() throws IOException {
         Scanner scanner = new Scanner(reutFile);
-        //extractor.prepareCoreWords();
+//        extractor.prepareCoreWords();
         while (scanner.hasNext()) {
             next = scanner.next();
             next = checkTopics(next);
@@ -55,12 +58,12 @@ public class Parser {
             next = checkBody(next);
             //System.out.print(artykul.getBody().toString());
         }
-        statistics.tfidf(artykulRepository);
+
 //        addRestWords();
     }
 
-    private List<String> prepareIgnoredWordsList(File ignoredWordFile) throws FileNotFoundException {
-        List<String> newIgnoredWordsList = new ArrayList<String>();
+    private Set<String> prepareIgnoredWordsList(File ignoredWordFile) throws FileNotFoundException {
+        Set<String> newIgnoredWordsList = new HashSet<>();
         Scanner scanner = new Scanner(ignoredWordFile);
         while (scanner.hasNext()) {
             newIgnoredWordsList.add(scanner.next());
@@ -72,49 +75,29 @@ public class Parser {
 
     private String checkBody(String next) throws IOException {
         String places = "west-germany usa france uk canada japan";
-
+        String stemm ="";
         if (next.contains("</BODY>")) {
-            if (artykul.getPlaceString() != null && !artykul.getPlaceString().equals("null")) {
-                if (!places.contains(artykul.getPlaceString())) {
+            if (artykul.getPlaceString() != null && !artykul.getPlaceString().equals("null") ) {
+                if (!places.contains(artykul.getPlaceString()) && args[5].equals("<PLACES>")) {
                     artykul = new Artykul();
                     areaFlag = "";
                 } else {
                     String[] tokens = extractor.tokenizer(artykul.getBodyString().toLowerCase());
+                    for (int i = 0; i < tokens.length; i++){
+                        tokens[i]=tokens[i].replaceAll("[^A-Za-z0-9]","");
+                    }
                     String[] tags = extractor.postTagger(tokens);
                     for (int i = 0; i < tokens.length; i++) {
-
-                        if (tags[i].equals("CD")) {
-                            artykul.addFeature(tags[i], false);
-                            artykulRepository.addUniqeWord(tags[i]);
-                        } else if (!tags[i].equals("IN") && !tokens[i].equals(",")
-                                && !tokens[i].equals(".") && !tags[i].equals("POS")
-                                && !tags[i].equals("DT") && !tags[i].equals("-RRB-") && !tags[i].equals("-LRB-") && !tags[i].equals("PRP")
-                                && !tags[i].equals("RB") && !tokens[i].equals("'d") && !tags[i].equals(":")) {
-                            //PorterStemmer porterStemmer = new PorterStemmer();
-                            //String stemm = porterStemmer.stemWord(tokens[i]);
-                            String stemm = stemmer.stem(tokens[i]);
-                            stemm = stemm.replaceAll("[^A-Za-z0-9]","");
-                            if (!ignoredWordsList.contains(stemm)) {
-                                //stemm = extractor.stemmWord(stemm,1);
-                                if(!ignoredWordsList.contains(stemm)) {
-                                    artykul.addFeature(stemm, false);
-                                    artykulRepository.addUniqeWord(stemm);
-                                }
-                            }
+//                        System.out.println(tokens[i] + " || " + tags[i] );
+                        stemm = tokens[i];
+                        stemm = tags(tags[i],stemm);
+                        stemm = porter(stemm);
+                        stemm = stopWords(stemm);
+                        stemm = number(tags[i],stemm);
+                        if(!stemm.equals("")){
+                            artykul.addFeature(stemm, false);
                         }
                     }
-                    System.out.println("----------------------------------------------------------------");
-
-
-//                    Iterator<String> iter = artykul.getFeatures().keySet().iterator();
-//                    while(iter.hasNext()) {
-//                        String clg = iter.next();
-//                        if (artykul.getFeatures().get(clg)<2){
-//                            iter.remove();
-//                        }
-//                    }
-                   // artykul.setFeatures(statistics.normalization(artykul.getFeatures(),artykul.getFeatures().size()));
-                    System.out.println(artykul.getFeatures());
 
                     artykulRepository.addArtykul(artykul);
 
@@ -141,17 +124,44 @@ public class Parser {
         return next;
     }
 
+    private String number(String tag, String stemm ){
+        if(tag.equals("CD")&& args[4].contains("NMBR")) {
+            return tag;
+        }
+        return stemm;
+    }
+    private String tags(String tag, String stemm){
+        if (!tag.equals("IN") && !tag.equals("PRP") && !tag.equals("DT") && !tag.equals("POS") && !tag.equals("PRP")
+                && !tag.equals("RB") && !tag.equals("CC") && !tag.equals("JJ")&&!tag.equals("WRB") && args[4].contains("TG")) {
+            return  stemm;
+        }if(args[4].contains("TG")) {
+            return "";
+        }
+        return stemm;
+    }
+    private String stopWords(String stemm){
+        if (ignoredWordsList.contains(stemm) && args[4].contains("SW")){
+            return "";
+        }
+        return stemm;
+    }
+    private String  porter(String stemm) throws IOException {
+        if (args[4].contains("P")) {
+            return stemmer.stem(stemm);
+        }
+        return stemm;
+    }
+
     private String checkPlaces(String next) {
-        if (next.contains("<PLACES>") && next.contains("<D>")) {
+        if (next.contains(args[5]) && next.contains("<D>")) {
             if (next.split("<D>").length < 3) {
                 next = next.split("<D>")[1].split("</D>")[0];
                 artykul.setLabel(next);
                 artykul.setPlaceString(next);
-                System.out.println("Place: " + next);
             } else {
                 artykul.setPlaceString("null");
                 artykul.setLabel("null");
-                System.out.println("Place: " + "null");
+//                System.out.println("Place: " + "null");
             }
         }
 
@@ -160,11 +170,11 @@ public class Parser {
     }
 
     private String checkTopics(String next) {
-        if (next.contains("<TOPICS>") && next.contains(("<D>"))) {
+        if (next.contains("<Places>") && next.contains(("<D>"))) {
             if (next.split("<D>").length < 3) {
                 next = next.split("<D>")[1].split("</D>")[0];
                 artykul.setTopic(uniqeTopics.get(next));
-                System.out.println("Topic: " + next);
+//                System.out.println("Topic: " + next);
             }
 
         }

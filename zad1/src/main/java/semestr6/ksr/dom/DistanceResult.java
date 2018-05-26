@@ -31,7 +31,7 @@ public class DistanceResult implements Comparable<DistanceResult> {
 
     public int compareTo(DistanceResult o) {
 
-        return Double.compare(this.distance,o.distance);
+        return Double.compare(this.distance, o.distance);
     }
 
 

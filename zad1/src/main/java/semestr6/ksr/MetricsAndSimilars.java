@@ -31,6 +31,7 @@ private  double result=0;
     int countEquals;
     int ns1;
     int ns2;
+    double min;
     String next;
     String gram1 ="";
     String gram2 ="";
@@ -43,6 +44,8 @@ private  double result=0;
         if(metric.equals("taxi")){return taxi(v1,v2);}
         if(metric.equals("manhatan")){return manhatan(v1, v2);}
         if(metric.equals("simcossinus")){return cossinusAmplitude(v1, v2);}
+        if(metric.equals("simavgmin")){return simAvgMin(v1, v2);}
+
 
 
 //
@@ -122,7 +125,25 @@ private  double result=0;
         }
         return  Math.abs(counter)/Math.sqrt(sum2*sum1);
     }
-    protected double simSentences() {return 0.0;}
+
+    protected double simAvgMin(List<Double> v1, List<Double>v2){
+        counter=0.0;
+        denominator=0.0;
+        sum1=0.0;
+        sum2=0.0;
+        min=0.0;
+        for(int i=0; i<v1.size();i++){
+            min=v1.get(i);
+            if(v1.get(i)>v2.get(i)){
+                min=v2.get(i);
+            }
+            counter = counter + min;
+            denominator = denominator + v1.get(i) +v2.get(i);
+
+        }
+        return  Math.abs(counter)/Math.sqrt(sum2*sum1);
+    }
+
 
     public Double maxsimimalry(String string,Set<String> lemmasList) {
 
